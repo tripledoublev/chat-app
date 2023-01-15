@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+			<meta charset="utf-8">
+			<title>My Chat App</title>	
+            <style>
+                li {
+                    list-style: none;
+                    
+                }
+                ul {
+                    padding: 0.25rem;
+
+                }
+                #chat, #identity {
+                    padding:1rem;
+                }
+            </style>
+	</head>
+	<body>
+        <div id="chat">
+            <ul id="messages"></ul>
+            <form id="message-form">
+                <input id="message-input" type="text" name="message-input">
+                <button>Send</button>
+            </form>
+        </div>
+        <div id="identity">
+            <p>Create an ID (must be 4 char)</p>
+        <form id="id-form">
+			<input id="id-input" type="text" name="id-input">
+			<button>Create</button>
+		</form>
+        </div>
+		<script src="./chat.js" type="module" async></script>
+	</body>
+</html>
