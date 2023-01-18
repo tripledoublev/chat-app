@@ -50,15 +50,28 @@
             li {
                 margin: 0.25rem;
             }
-            li::before {
+/*              li::before {
                 content: '*';
                 position: absolute;
                 left: 0.5rem;
+            }  */
+            h2 {
+                font-size: 1.25rem;
             }
+            #message-form {
+                margin-left:0.5rem;
+              }
+
+              svg {
+                width: 20px;
+                height: 20px;
+                margin-bottom: -5px;
+              }
         </style>
     </head>
     <body>
         <div id="chat">
+            <h2>Chat</h2>
             <ul id="messages"></ul>
             <form id="message-form">
                 <input id="message-input" type="text" name="message-input">
@@ -71,8 +84,12 @@
             </form>
         </div>
         <div id="identity">
-
             <h2>Identity</h2>
+            <p>
+                Generate a random ID
+                <button id="randomID">Generate</button>
+            </p>
+            
             <p>
                 Create an ID (must be 4 char)
                 <form id="id-form">
@@ -81,10 +98,7 @@
                 </form>
             </p>
 
-            <p>
-                Generate a random ID
-                <button id="randomID">Generate</button>
-            </p>
+
 
             <div>
                 <p>
@@ -123,6 +137,12 @@
                 <audio controls class="audio-element hide">
                 </audio>  -->
         <script src="chat.js" type="module" async></script>
+        <script>
+            window.jdenticon_config = {
+                replaceMode: "observe"
+            };
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/jdenticon@3.2.0/dist/jdenticon.min.js" async integrity="sha384-yBhgDqxM50qJV5JPdayci8wCfooqvhFYbIKhv0hTtLvfeeyJMJCscRfFNKIxt43M" crossorigin="anonymous"></script>
 
     </body>
 </html>

@@ -167,16 +167,23 @@ function stopAudioRecording() {
         .then(audioAsblob => {
             //Play recorder audio
             playAudio(audioAsblob);
-
+            console.log("audioAsblob", audioAsblob);
+            console.log("typeof audioAsblob", typeof audioAsblob);
             //hide recording control button & return record icon
             handleHidingRecordingControlButtons();
 
+            // convert blob to file
+            let audioAsFile = new File([audioAsblob], "audio.wav", {
+                type: "audio/wav",
+                lastModified: Date.now()
+            });
+            console.log("Audio as file", audioAsFile);
             // attempt to send the recorded audio to the server
             console.log("Sending audio to server...");
             replica.set(authorKeypair, {
                 path: "/audio/" + doc.author.slice(1, 5) + "/" + new Date().getTime() + ".wav",
                 text: "A voice note by " + doc.author.slice(1, 5) + " at " + new Date().toLocaleString(),
-                attachment: audioAsblob,
+                attachment: audioAsFile,
               });
             console.log('Audio sent to server.')
 
@@ -188,6 +195,7 @@ function stopAudioRecording() {
                     console.log("An InvalidStateError has occured.");
                     break;
                 default:
+                    console.log('error ', error);
                     console.log("An error occured with the error name " + error.name);
             };
         });

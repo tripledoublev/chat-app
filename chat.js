@@ -112,9 +112,12 @@ function renderMessages() {
 	for (const doc of chatDocs) {
 		const message = document.createElement("li");
         const alias = doc.author.slice(1, 5);
+        const identicon = `<svg data-jdenticon-value="` + alias +`" width="80" height="80">
+    Fallback text or image for browsers not supporting inline svg.
+</svg>`
         if(doc.text === ""){ continue; }
         console.log('doctext ', doc.text);
-        message.innerHTML = `<strong>` + alias + `</strong>: ` + doc.text;
+        message.innerHTML = `<strong>` + alias + identicon + `</strong> ` + doc.text;
 
 		messages.append(message);
 	}
