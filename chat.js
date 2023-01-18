@@ -1,10 +1,13 @@
 import * as Earthstar from "https://cdn.earthstar-project.org/js/earthstar.web.v10.0.0.js";
 
+const NEWshareKeypair = await Earthstar.Crypto.generateShareKeypair("chatroom");
+console.log(NEWshareKeypair)
 // Use the values for shareKeypair which were logged to your console.
 const shareKeypair = {
-	shareAddress:
-		"+chatting.bgnxayo3biun2j3yb4qosumcrdhcfy6albvlfu32mels7t5fz5uta",
-	secret: "bqsqgq23hx6g6ub55jiddmcyci4cknlyeycavtorqc72atl35ty2a",
+    
+        shareAddress: "+chatroom.biv7fc6vt6i2tqcwqjqqdooeideuhsbadrqzhwv2g3mcz2w6eq24a",
+        secret: "batp2r4rcn6plcq74lsvkybyjm2fra5r6zxooyqriovfn4ff4sr3a"
+
 };
 
 // generate random id
@@ -89,7 +92,7 @@ document.getElementById("minutesButton").addEventListener("click", function(e){
 });
 document.getElementById("hoursButton").addEventListener("click", function(e){
     e.preventDefault();
-    var deletionTime = (Date.now() + 3600000) * 1000;
+    var deletionTime = (Date.now() + 36000000) * 1000;
     sendMessages(deletionTime);
 });
 
@@ -132,7 +135,7 @@ idForm.addEventListener("submit", async (event) => {
         console.groupEnd();
         authorKeypair = newAuthorKeypair;
         document.getElementById("identity-info").innerHTML += 
-        'Address: ' + authorKeypair.address + '<br>Secret: ' + authorKeypair.secret;
+        '<br>***<br>Address: ' + authorKeypair.address + '<br>Secret: ' + authorKeypair.secret;
      } else if (Earthstar.isErr(newAuthorKeypair)) {
         console.error(newAuthorKeypair);
     }
@@ -153,7 +156,7 @@ randomButton.addEventListener("click", async (event) => {
         console.groupEnd();
         authorKeypair = newAuthorKeypair;
         document.getElementById("identity-info").innerHTML += 
-        'Address: ' + authorKeypair.address + '<br>Secret: ' + authorKeypair.secret;
+        '<br>***<br>Address: ' + authorKeypair.address + '<br>Secret: ' + authorKeypair.secret;
      } else if (Earthstar.isErr(newAuthorKeypair)) {
         console.error(newAuthorKeypair);
     }
@@ -169,7 +172,7 @@ renderMessages();
 
 const peer = new Earthstar.Peer();
 peer.addReplica(replica);
-peer.sync("https://blue-southern-muse.glitch.me/", true);
+peer.sync("https://abstracted-mire-starburst.glitch.me/", true);
 
 const allDocs = await replica.getAllDocs();
 console.log("allDocs ", allDocs);
