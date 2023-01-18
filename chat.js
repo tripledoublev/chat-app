@@ -48,9 +48,8 @@ deleteButton.addEventListener("click", async (event) => {
         path: "/chat",
         text: "",
       });
-      
-    //const result = await replica.wipeDocAtPath(authorKeypair, "/chat/*");
-    console.log("result ", result);
+  
+    //const result = await replica.wipeDocAtPath(authorKeypair, `/chat`);
 
 	if (Earthstar.isErr(result)) {
 		console.error(result);
@@ -61,6 +60,7 @@ deleteButton.addEventListener("click", async (event) => {
 async function sendMessages(deletionTime) {
     console.log("deletionTime ", deletionTime)
     // Write the contents of the message to the replica.
+    const alias = authorKeypair.address.slice(1, 5);
     const result = await replica.set(authorKeypair, {
         path: `/chat/~${authorKeypair.address}/${Date.now()}!`,
         text: input.value,
@@ -84,12 +84,12 @@ document.getElementById("secondsButton").addEventListener("click", function(e) {
 });
 document.getElementById("minutesButton").addEventListener("click", function(e){
     e.preventDefault();
-    var deletionTime = (Date.now() + (10000 * 60000)) * 1000;
+    var deletionTime = (Date.now() + 600000) * 1000;
     sendMessages(deletionTime);
 });
 document.getElementById("hoursButton").addEventListener("click", function(e){
     e.preventDefault();
-    var deletionTime = (Date.now() + (10000 * 36000000)) * 1000;
+    var deletionTime = (Date.now() + 3600000) * 1000;
     sendMessages(deletionTime);
 });
 
