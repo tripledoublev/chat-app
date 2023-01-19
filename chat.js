@@ -1,7 +1,10 @@
 import * as Earthstar from "https://cdn.earthstar-project.org/js/earthstar.web.v10.0.0.js";
 
-const NEWshareKeypair = await Earthstar.Crypto.generateShareKeypair("chatroom");
-console.log(NEWshareKeypair)
+// if a fresh start is needed, uncomment the following lines to obtain a new chatroom share address and secret
+//const NEWshareKeypair = await Earthstar.Crypto.generateShareKeypair("chatroom");
+//console.log(NEWshareKeypair)
+
+
 // Use the values for shareKeypair which were logged to your console.
 const shareKeypair = {
     
@@ -24,7 +27,7 @@ function makeid() {
     return result;
 }
 
-// Create a new author keypair based on the random id.
+// Create a new author keypair with a random id.
 let authorKeypair = await Earthstar.Crypto.generateAuthorKeypair(makeid());
 // print authorKeypair to console
 console.log("authorKeypair ", authorKeypair)
@@ -51,8 +54,7 @@ deleteButton.addEventListener("click", async (event) => {
         path: "/chat",
         text: "",
       });
-  
-    //const result = await replica.wipeDocAtPath(authorKeypair, `/chat`);
+    //const result = await replica.wipeDocAtPath(authorKeypair, "/chat");
 
 	if (Earthstar.isErr(result)) {
 		console.error(result);
@@ -65,7 +67,7 @@ async function sendMessages(deletionTime) {
     // Write the contents of the message to the replica.
     const alias = authorKeypair.address.slice(1, 5);
     const result = await replica.set(authorKeypair, {
-        path: `/chat/~${authorKeypair.address}/${Date.now()}!`,
+        path: `/chat/${Date.now()}!`,
         text: input.value,
         deleteAfter: deletionTime,
     });
@@ -108,7 +110,6 @@ function renderMessages() {
 		filter: { pathStartsWith: "/chat" },
         
 	});
-    console.log("chatDocs ", chatDocs);
 	for (const doc of chatDocs) {
 		const message = document.createElement("li");
         const alias = doc.author.slice(1, 5);
@@ -126,11 +127,12 @@ function renderMessages() {
 
 // Read voice notes from replica.
 const voiceNotes = document.getElementById("voice-notes");
+const voiceCache = new Earthstar.ReplicaCache(replica);
 
 async function renderVoiceNotes() {
 	voiceNotes.innerHTML = "";
 
-    const voiceDocs = cache.queryDocs({
+    const voiceDocs = voiceCache.queryDocs({
 		filter: { pathStartsWith: "/voice" },
         
 	});
@@ -139,10 +141,12 @@ async function renderVoiceNotes() {
 
 	for (const doc of voiceDocs) {
 		const note = document.createElement("li");
-        const alias = doc.author.slice(1, 5);
         const attachment = await replica.getAttachment(doc);
+        if (attachment === undefined) {
+            console.log("no attachment?")
+            continue;
+        }
         const docdata = await attachment.bytes();
-        console.log("attachment ", attachment);
         let bytes = new Uint8Array(docdata.length);
         for (var i = 0; i < docdata.length; i++) {
             bytes[i] = docdata[i];
@@ -204,11 +208,14 @@ randomButton.addEventListener("click", async (event) => {
 
 cache.onCacheUpdated(() => {
 	renderMessages();
+});
+voiceCache.onCacheUpdated(() => {
     renderVoiceNotes();
 });
 
 renderMessages();
 renderVoiceNotes();
+
 
 
 const peer = new Earthstar.Peer();
@@ -223,6 +230,7 @@ syncer.onStatusChange((newStatus) => {
 });
 
 syncer.isDone().then(() => {
+    renderVoiceNotes();
   console.log("Sync complete");
 }).catch((err) => {
   console.error("Sync failed", err);
@@ -452,13 +460,17 @@ async function uploadDocumentToServer(audioAsblob) {
 try {
     
         console.log("type: ", audioAsblob.type)
-        var file = new File([audioAsblob], "voice-note.ogg");
+        var type = audioAsblob.type;
+        var withoutCodecs = type.split(";")[0];
+        var extension = withoutCodecs.split("/")[1];
+        console.log("extension: ", extension);
+        var file = new File([audioAsblob], "voice-note" + "." + extension, {type: type});
         console.log("file: ", file);
         let myuint8array = await getAsByteArray(file);
         console.log("audioBlob: " + audioAsblob);
         console.log("myuint8array: " + myuint8array);
         const result = await replica.set(authorKeypair, {
-            path: `/voice/~${authorKeypair.address}/${Date.now()}/voice-note.ogg`,
+            path: `/voice/~${authorKeypair.address}/${Date.now()}/voice-note.${extension}`,
             text: "A voice note by " + authorKeypair.address.slice(1, 5) + " at " + new Date().toLocaleString(),
             attachment: myuint8array,
           });
