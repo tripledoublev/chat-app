@@ -128,7 +128,7 @@ function renderMessages() {
 const voiceNotes = document.getElementById("voice-notes");
 
 async function renderVoiceNotes() {
-	
+	voiceNotes.innerHTML = "";
 
     const voiceDocs = cache.queryDocs({
 		filter: { pathStartsWith: "/voice" },
