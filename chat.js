@@ -183,9 +183,6 @@ async function renderAttachments() {
         if (attachment === undefined) {
             console.log("no image attachment?")
             console.log('doc attachment', doc);
-            console.log('attachment ', attachment);
-            const docData = await attachment.bytes;
-            console.log('docData attachment ', docData);
         } else {
         const docdata = await attachment.bytes();
         console.log('attachment bytes ', attachment.bytes());
