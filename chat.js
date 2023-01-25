@@ -8,9 +8,9 @@ import * as Earthstar from "https://cdn.earthstar-project.org/js/earthstar.web.v
 // Use the values for shareKeypair which were logged to your console.
 const shareKeypair = {
     
-        shareAddress: "+chatroom.brmxmbbxygnrhoal5igh5agf2gw7tft3phylur5e7vftagjl4wfmq",
-        secret: "b7twdqaiscmlkjspmuacogmcpibfvkjynsqmc3gcjyc7snlwwtf5a"
-  
+        shareAddress: "+chatroom.b4fjzm5q4qkk363ax4uax7dcixgacevwfgm7jlasngrbp5ufmh7za",
+        secret: "bz4vyqt3np4cq3shygcm2zd3qljtdwrczr2usl3l3dar5gup6wouq"
+
 };
 
 // generate random id
@@ -143,15 +143,15 @@ async function renderVoiceNotes() {
 		const note = document.createElement("li");
         const attachment = await replica.getAttachment(doc);
         if (attachment === undefined) {
-            console.log("no attachment?")
+            console.log("undefined voice attachment")
             continue;
-        }
+        } 
         const docdata = await attachment.bytes();
         let bytes = new Uint8Array(docdata.length);
         for (var i = 0; i < docdata.length; i++) {
             bytes[i] = docdata[i];
         }
-        console.log("attachment ", attachment.getStream);
+        console.log("voice attachment ", attachment);
         const blob = URL.createObjectURL(new Blob([bytes], {type: "audio/ogg"}));
 
         const a = document.createElement('a');
@@ -162,6 +162,71 @@ async function renderVoiceNotes() {
 
 	}
 }
+
+
+// Read attachments from replica.
+const attachments = document.getElementById("file-attachments");
+const fileCache = new Earthstar.ReplicaCache(replica);
+async function renderAttachments() {
+	attachments.innerHTML = "";
+
+    const fileAttachments = fileCache.queryDocs({
+		filter: { pathStartsWith: "/attachments" },
+        
+	});
+    console.log("fileDocs ", fileAttachments);
+
+
+	for (const doc of fileAttachments) {
+		const singleFile = document.createElement("li");
+        const attachment = await replica.getAttachment(doc);
+        if (attachment === undefined) {
+            console.log("no image attachment?")
+            console.log('doc attachment', doc);
+            console.log('attachment ', attachment);
+            const docData = await attachment.bytes;
+            console.log('docData attachment ', docData);
+        } else {
+        const docdata = await attachment.bytes();
+        console.log('attachment bytes ', attachment.bytes());
+        console.log('docdata ', docdata);
+        let bytes = new Uint8Array(docdata.length);
+        for (var i = 0; i < docdata.length; i++) {
+            bytes[i] = docdata[i];
+        }
+        console.log("bytes ", bytes);
+        let blob = new Blob([bytes])
+        console.log("blob ", blob);
+        let reader = new FileReader();
+        reader.readAsDataURL(blob); // converts the blob to base64 and calls onload
+
+        reader.onload = function() {
+        console.log('reader result: ' + reader.result);
+        console.log('reader.result type: ' + typeof reader.result);
+/*         if (type === "jpg") {
+        imageData = "data:image/jpeg;base64," + reader.result.split(',')[1]; }
+        else if (type === "png") { */
+        let imageData = "data:image/png;base64," + reader.result.split(',')[1]; 
+        const image = document.createElement("img");
+        image.className = "image_view";
+        image.src = URL.createObjectURL(
+            new Blob([bytes], { type: 'image/png' } /* (1) */)
+          );        
+        const a = document.createElement('div');
+        a.innerHTML = doc.text;
+        a.appendChild(image);
+        singleFile.append(a);
+		attachments.append(singleFile);
+        
+
+
+        console.log("attachment ", attachment);
+    }
+        }
+
+	}
+}
+
 
 
 // Create new Identity.
@@ -212,9 +277,13 @@ cache.onCacheUpdated(() => {
 voiceCache.onCacheUpdated(() => {
     renderVoiceNotes();
 });
+fileCache.onCacheUpdated(() => {
+    renderAttachments();
+});
 
 renderMessages();
 renderVoiceNotes();
+renderAttachments();
 
 
 
@@ -430,7 +499,7 @@ function startAudioRecording() {
 
 
     // upload file from disk
-    /* document.getElementById("uploadButton").onclick = async () => {
+    document.getElementById("uploadButton").onclick = async () => {
         let fileElement = document.getElementById('fileInput')
   
         // check if user had selected a file
@@ -453,7 +522,7 @@ function startAudioRecording() {
         if (Earthstar.isErr(result)) {
             console.error(result);
         }
-    } */
+    }
 
 // async function to upload document to server
 async function uploadDocumentToServer(audioAsblob) {
