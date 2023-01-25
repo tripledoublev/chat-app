@@ -13,7 +13,7 @@ const shareKeypair = {
 
 };
 
-// generate random id
+// function to generate a valid pseudo-random id
 function makeid() {
     var result           = '';
     var alphaCharacter   = 'abcdefghijklmnopqrstuvwxyz';
@@ -32,9 +32,10 @@ let authorKeypair = await Earthstar.Crypto.generateAuthorKeypair(makeid());
 // print authorKeypair to console
 console.log("authorKeypair ", authorKeypair)
 // print authorKeypair to page
+document.getElementById("id-text").innerHTML = authorKeypair.address.slice(1, 5);
 document.getElementById("identity-info").innerHTML += 
 'Address: ' + authorKeypair.address + '<br>Secret: ' + authorKeypair.secret;
-
+// print 
 const replica = new Earthstar.Replica({
 	driver: new Earthstar.ReplicaDriverWeb(shareKeypair.shareAddress),
 	shareSecret: shareKeypair.secret,
@@ -243,6 +244,8 @@ idForm.addEventListener("submit", async (event) => {
         '<br>***<br>Address: ' + authorKeypair.address + '<br>Secret: ' + authorKeypair.secret;
      } else if (Earthstar.isErr(newAuthorKeypair)) {
         console.error(newAuthorKeypair);
+        document.getElementById("identity").appendChild(document.createTextNode("Error: " + newAuthorKeypair)); 
+        
     }
 });
 
@@ -290,6 +293,7 @@ peer.sync("https://abstracted-mire-starburst.glitch.me/", true);
 
 
 const syncer = peer.sync("https://abstracted-mire-starburst.glitch.me/");
+const statusText = document.getElementById("status-text");
 
 syncer.onStatusChange((newStatus) => {
   console.log(newStatus);
@@ -300,6 +304,7 @@ syncer.isDone().then(() => {
   console.log("Sync complete");
 }).catch((err) => {
   console.error("Sync failed", err);
+  statusText.innerHTML = "Sync failed" + err;
 });
 
 
