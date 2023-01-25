@@ -130,40 +130,121 @@ const voiceNotes = document.getElementById("voice-notes");
 const voiceCache = new Earthstar.ReplicaCache(replica);
 
 async function renderVoiceNotes() {
-	voiceNotes.innerHTML = "";
+    try {
+        voiceNotes.innerHTML = "";
 
-    const voiceDocs = voiceCache.queryDocs({
-		filter: { pathStartsWith: "/voice" },
-        
-	});
-    console.log("voiceDocs ", voiceDocs);
+        const voiceDocs = voiceCache.queryDocs({
+            filter: { pathStartsWith: "/voice" },
+            
+        });
+        console.log("voiceDocs ", voiceDocs);
 
 
-	for (const doc of voiceDocs) {
-		const note = document.createElement("li");
-        const attachment = await replica.getAttachment(doc);
-        if (attachment === undefined) {
-            console.log("no attachment?")
-            continue;
+        for (const doc of voiceDocs) {
+            const note = document.createElement("li");
+            const voiceNote = await replica.getAttachment(doc);
+            if (!voiceNote.ok) {
+                throw new Error(`HTTP error: ${voiceNote.status}`);
+            } else {
+                console.log("voiceNote is ok ", voiceNote);
+                const a = document.createElement('a');
+                a.innerHTML = doc.text;
+                note.append(a);
+                voiceNotes.append(note);
+                const docdata = await voiceNote.bytes();
+                if (!docdata.ok) {
+                    throw new Error(`HTTP error: ${docdata.status}`);
+                }
+                let bytes = new Uint8Array(docdata.length);
+                for (var i = 0; i < docdata.length; i++) {
+                    bytes[i] = docdata[i];
+                }
+                const blob = await URL.createObjectURL(new Blob([bytes], {type: "audio/ogg"}));
+                if (!blob.ok) {
+                    throw new Error(`HTTP error: ${blob.status}`);
+                }
+                console.log("blob ", blob);
+                const audio = document.createElement('audio');
+                audio.src = blob;
+                audio.controls = true;
+                note.append(audio);
+                voiceNotes.append(note);
+                
+            }
+          
+            /* const a = document.createElement('a');
+            a.href = blob;
+            a.innerHTML = doc.text;
+            note.append(a);
+            voiceNotes.append(note); */
         }
-        const docdata = await attachment.bytes();
-        let bytes = new Uint8Array(docdata.length);
-        for (var i = 0; i < docdata.length; i++) {
-            bytes[i] = docdata[i];
-        }
-        console.log("attachment ", attachment.getStream);
-        const blob = URL.createObjectURL(new Blob([bytes], {type: "audio/ogg"}));
-
-        const a = document.createElement('a');
-        a.href = blob;
-        a.innerHTML = doc.text;
-        note.append(a);
-		voiceNotes.append(note);
-
+    } catch (err) {
+        console.error(err);
 	}
 }
 
 
+// Read attachments from replica.
+const attachments = document.getElementById("attachments");
+const attachmentCache = new Earthstar.ReplicaCache(replica);
+
+async function renderAttachments() {
+    try {
+        attachments.innerHTML = "";
+
+        const allAttachments = attachmentCache.queryDocs({
+            filter: { pathStartsWith: "/attachments" },
+            
+        });
+        console.log("attachments: ", allAttachments);
+
+
+        for (const doc of allAttachments) {
+            const attachment = document.createElement("li");
+            const getAttachment = await replica.getAttachment(doc);
+            
+            const docdata = await getAttachment.bytes();
+
+            
+            let bytes = new Uint8Array(docdata.length);
+            for (var i = 0; i < docdata.length; i++) {
+                bytes[i] = docdata[i];
+                
+            }
+            console.log('bytes typeof: ' + typeof bytes)
+
+            const blob = await URL.createObjectURL(new Blob([bytes], {type: "image/png"}));
+            if (!blob.ok) {
+                throw new Error(`HTTP error: ${blob.status}`);
+            }
+                let reader = new FileReader();
+                reader.readAsDataURL(blob); // converts the blob to base64 and calls onload
+
+                reader.onload = function() {
+                    console.log('reader result: ' + reader.result);
+                        console.log('reader.result type: ' + typeof reader.result);
+                        jpg = "data:image/png;base64," + reader.result.split(',')[1];
+                        image = document.createElement("img");   
+                        image.src = jpg;
+                        image.width = 300;
+                        console.log("attachment ", attachment.getStream);
+                    
+                        const a = document.createElement('caption');
+                        a.innerHTML = doc.text;
+                        image.append(a);
+                        attachment.append(image);
+                        attachments.append(attachment);
+                        
+                    }
+                }
+            
+        } catch (error) {
+            console.error(error);
+            for (const keys in Object.entries(error)) {
+            console.log(keys);
+            }
+    }
+}
 // Create new Identity.
 idForm.addEventListener("submit", async (event) => {
 	// This stops the page from reloading.
@@ -213,6 +294,11 @@ voiceCache.onCacheUpdated(() => {
     renderVoiceNotes();
 });
 
+attachmentCache.onCacheUpdated(() => {
+    renderAttachments();
+});
+
+renderAttachments()
 renderMessages();
 renderVoiceNotes();
 
@@ -230,7 +316,6 @@ syncer.onStatusChange((newStatus) => {
 });
 
 syncer.isDone().then(() => {
-    renderVoiceNotes();
   console.log("Sync complete");
 }).catch((err) => {
   console.error("Sync failed", err);
@@ -429,8 +514,8 @@ function startAudioRecording() {
       }
 
 
-    // upload file from disk
-    /* document.getElementById("uploadButton").onclick = async () => {
+     // upload file from disk
+     document.getElementById("uploadButton").onclick = async () => {
         let fileElement = document.getElementById('fileInput')
   
         // check if user had selected a file
@@ -453,7 +538,7 @@ function startAudioRecording() {
         if (Earthstar.isErr(result)) {
             console.error(result);
         }
-    } */
+    }
 
 // async function to upload document to server
 async function uploadDocumentToServer(audioAsblob) {
