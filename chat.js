@@ -293,6 +293,9 @@ const peer = new Earthstar.Peer();
 peer.addReplica(replica);
 peer.sync("https://abstracted-mire-starburst.glitch.me/", true);
 
+const otherPeer = new Earthstar.Peer();
+otherPeer.addReplica(replica);
+otherPeer.sync("http://localhost:8000/", true);
 
 const syncer = peer.sync("https://abstracted-mire-starburst.glitch.me/");
 const statusText = document.getElementById("status-text");
