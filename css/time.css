@@ -29,14 +29,23 @@ li {
 }
 
 button.timeBtn {
-    background-color:#333;
     border-radius: 0.5rem;
-    color: white;
     padding: 0.25rem 0.5rem;
-    border: 1px dashed white;
+    border-width: 1px;
+    border-style: dashed;
     font-family: monospace;
     float: right;
-    margin: -0.15rem;
+    margin: -0.15rem 0.25rem;
+}
+.addtimeBtn {
+    background-color: green;
+    color: white;
+    border-color: white;
+}
+.rmtimeBtn {
+    background-color: red;
+    color: black;
+    border-color: black;
 }
 
 #message-form {

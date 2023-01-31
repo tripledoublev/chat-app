@@ -84,7 +84,7 @@ function renderMessages() {
         const txtAlias = doc.text.slice(0, 5);
         const txtOnly = doc.text.slice(5);
         const fullname = doc.author;
-        const identicon = `<svg data-jdenticon-value="` + fullname + 
+        const identicon = `<svg data-jdenticon-value="` + doc.deleteAfter + 
         `" width="80" height="80">
             Fallback text or image for browsers not supporting inline svg.
         </svg>`
@@ -93,9 +93,10 @@ function renderMessages() {
         }
         console.log('doctext ', doc.text);
         message.innerHTML = identicon + `<strong>` + txtAlias +  `</strong> ` + txtOnly;
+        
         // add time button and function
         const timeButton = document.createElement("button");
-        timeButton.classList.add("timeBtn");
+        timeButton.classList.add("timeBtn", "addtimeBtn");
         timeButton.innerHTML = "Add 1 minute";
         timeButton.addEventListener("click", async (e) => {
             const deletionTime = doc.deleteAfter;
@@ -107,18 +108,33 @@ function renderMessages() {
             console.log("result ", result);
         });
 
+         // remove time button and function
+         const rmtimeButton = document.createElement("button");
+         rmtimeButton.classList.add("timeBtn", "rmtimeBtn");
+         rmtimeButton.innerHTML = "Remove 1 minute";
+         rmtimeButton.addEventListener("click", async (e) => {
+             const deletionTime = doc.deleteAfter;
+             const result = await replica.set(authorKeypair, {
+                 path: doc.path,
+                 deleteAfter: deletionTime - 60000 * 1000
+             });
+             console.log("new deletion time ", new Date(doc.deleteAfter / 1000));
+             console.log("result ", result);
+         });
+
         // time affects opacity
         const timeUntil = (doc.deleteAfter - (Date.now() * 1000)) / 60000000;
         console.log("time before deletion", timeUntil.toFixed(2) + "minutes");
         const opacityLevels = timeUntil.toFixed(0) / 60;
         console.log("opacity ", opacityLevels);
         message.style.backgroundColor = 'rgba(51,51,51,' + opacityLevels +')';
-        
+        timeButton.style.backgroundColor = 'rgba(0,128,0,' + opacityLevels +')';
+        rmtimeButton.style.backgroundColor = 'rgba(255,0,0,' + opacityLevels +')';
         if (timeUntil.toFixed(0) < 30) {
             message.style.color = "black";
         }
-        message.appendChild(timeButton);
-
+        message.insertAdjacentElement('afterbegin', timeButton);
+        message.insertAdjacentElement('beforeend', rmtimeButton);
         messages.append(message);
     }
 }
