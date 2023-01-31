@@ -92,7 +92,8 @@ function renderMessages() {
             continue;
         }
         console.log('doctext ', doc.text);
-        message.innerHTML = identicon + `<strong>` + txtAlias +  `</strong> ` + txtOnly;
+        const subMessage = document.createElement("div");
+        subMessage.innerHTML = identicon + `<strong>` + txtAlias +  `</strong> ` + txtOnly;
         
         // add time button and function
         const timeButton = document.createElement("button");
@@ -133,8 +134,16 @@ function renderMessages() {
         if (timeUntil.toFixed(0) < 30) {
             message.style.color = "black";
         }
-        message.insertAdjacentElement('afterbegin', timeButton);
-        message.insertAdjacentElement('beforeend', rmtimeButton);
+        if (opacityLevels < 0.25) {
+            timeButton.style.color = "black";
+            timeButton.style.borderColor = "black";
+        }
+        const btnDiv = document.createElement("div");
+        btnDiv.style.marginLeft = 'auto';
+        btnDiv.appendChild(timeButton);
+        btnDiv.appendChild(rmtimeButton);
+        message.appendChild(subMessage);
+        message.appendChild(btnDiv);
         messages.append(message);
     }
 }
