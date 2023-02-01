@@ -33,7 +33,12 @@ li {
     display:flex;
     flex-wrap: wrap;
     justify-content: space-between;
+    align-items: center;
 }
+
+li div:first-child {
+    padding:10px;
+  }
 
 button.timeBtn {
     border-radius: 0.5rem;
@@ -67,3 +72,4 @@ input {
     bottom: 15px;
     right: 15px;
 }
+
